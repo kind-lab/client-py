@@ -51,9 +51,9 @@ class ContactPoint(element.Element):
         js.extend([
             ("period", "period", period.Period, False, None, False),
             ("rank", "rank", int, False, None, False),
-            ("system", "system", str, False, None, False),
+            ("system", "system", str, False, None, True),
             ("use", "use", str, False, None, False),
-            ("value", "value", str, False, None, False),
+            ("value", "value", str, False, None, True),
         ])
         return js
 

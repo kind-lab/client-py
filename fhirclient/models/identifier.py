@@ -55,10 +55,10 @@ class Identifier(element.Element):
         js.extend([
             ("assigner", "assigner", fhirreference.FHIRReference, False, None, False),
             ("period", "period", period.Period, False, None, False),
-            ("system", "system", str, False, None, False),
+            ("system", "system", str, False, None, True),
             ("type", "type", codeableconcept.CodeableConcept, False, None, False),
             ("use", "use", str, False, None, False),
-            ("value", "value", str, False, None, False),
+            ("value", "value", str, False, None, True),
         ])
         return js
 
