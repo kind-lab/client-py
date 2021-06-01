@@ -110,15 +110,15 @@ class Patient(domainresource.DomainResource):
             ("contact", "contact", PatientContact, True, None, False),
             ("deceasedBoolean", "deceasedBoolean", bool, False, "deceased", False),
             ("deceasedDateTime", "deceasedDateTime", fhirdate.FHIRDate, False, "deceased", False),
-            ("gender", "gender", str, False, None, False),
+            ("gender", "gender", str, False, None, True),
             ("generalPractitioner", "generalPractitioner", fhirreference.FHIRReference, True, None, False),
-            ("identifier", "identifier", identifier.Identifier, True, None, False),
+            ("identifier", "identifier", identifier.Identifier, True, None, True),
             ("link", "link", PatientLink, True, None, False),
             ("managingOrganization", "managingOrganization", fhirreference.FHIRReference, False, None, False),
             ("maritalStatus", "maritalStatus", codeableconcept.CodeableConcept, False, None, False),
             ("multipleBirthBoolean", "multipleBirthBoolean", bool, False, "multipleBirth", False),
             ("multipleBirthInteger", "multipleBirthInteger", int, False, "multipleBirth", False),
-            ("name", "name", humanname.HumanName, True, None, False),
+            ("name", "name", humanname.HumanName, True, None, True),
             ("photo", "photo", attachment.Attachment, True, None, False),
             ("telecom", "telecom", contactpoint.ContactPoint, True, None, False),
         ])
@@ -126,6 +126,7 @@ class Patient(domainresource.DomainResource):
 
 
 from . import backboneelement
+from . import extension
 
 class PatientCommunication(backboneelement.BackboneElement):
     """ A language which may be used to communicate with the patient about his or
@@ -160,6 +161,8 @@ class PatientCommunication(backboneelement.BackboneElement):
             ("preferred", "preferred", bool, False, None, False),
         ])
         return js
+
+
 
 
 class PatientContact(backboneelement.BackboneElement):
@@ -255,7 +258,58 @@ class PatientLink(backboneelement.BackboneElement):
             ("type", "type", str, False, None, True),
         ])
         return js
+    
+   
+class USCoreRaceExtension(extension.Extension):
+    """ Race text US core """
+    resource_type = "USCoreRaceExtension"
+    
+    def __init__(self, jsondict=None, strict=True):
+        """ Initialize all valid properties.
+        
+        :raises: FHIRValidationError on validation errors, unless strict is False
+        :param dict jsondict: A JSON dictionary to use for initialization
+        :param bool strict: If True (the default), invalid variables will raise a TypeError
+        """
+        self.url = None
+        """ OMB cateogry"""
+        
+        self.valueCoding = None
+        """ Value of omb category """
+        
+        self.DOESNTEXISTVALUE = None
+        
+    def elementProperties(self):
+        js = super(USCoreRaceExtension, self).elementProperties()
+        js.extend([
+            ("url", "url", str, False, None, True),
+            ("valueCoding", "valueCoding", coding.Coding, False, None, True),
+            ("DOESNTEXISTVALUE", "DOESNTEXISTVALUE", str, False, None, True),
+        ])
+        return js
 
+
+class USCoreRace(extension.Extension):
+    """ Race as defined by US Core """
+    resource_type = "USCoreRace"
+    
+    def __init__(self, jsondict=None, strict=True):
+        """ Initialize all valid properties.
+        
+        :raises: FHIRValidationError on validation errors, unless strict is False
+        :param dict jsondict: A JSON dictionary to use for initialization
+        :param bool strict: If True (the default), invalid variables will raise a TypeError
+        """
+        self.extension = None
+        """ Race extension """
+
+    def elementProperties(self):
+        js = super(USCoreRace, self).elementProperties()
+        js.extend([
+            ("extension", "extension", USCoreRaceExtension, False, None, True),
+        ])
+        return js
+        
 
 import sys
 try:
@@ -270,6 +324,10 @@ try:
     from . import codeableconcept
 except ImportError:
     codeableconcept = sys.modules[__package__ + '.codeableconcept']
+try:
+    from . import coding
+except ImportError:
+    coding = sys.modules[__package__ + '.coding']
 try:
     from . import contactpoint
 except ImportError:
