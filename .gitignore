@@ -5,6 +5,11 @@ session_data
 # docs
 /docs
 
+# build
+/build
+/dist
+/fhirclient.egg-info
+
 # virtualenv
 /env
 /env2
