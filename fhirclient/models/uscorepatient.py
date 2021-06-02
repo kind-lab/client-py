@@ -1,7 +1,10 @@
 
-from . import extension
+from . import element
+import logging
 
-class ExtensionOmbCategory(extension.Extension):
+logger = logging.getLogger(__name__)
+
+class ExtensionOmbCategory(element.Element):
     """ Race text US core """
     resource_type = "ExtensionOmbCategory"
     
@@ -29,7 +32,7 @@ class ExtensionOmbCategory(extension.Extension):
         ])
         return js
 
-class ExtensionDetailed(extension.Extension):
+class ExtensionDetailed(element.Element):
     """ Race text US core """
     resource_type = "ExtensionDetailed"
     
@@ -57,7 +60,7 @@ class ExtensionDetailed(extension.Extension):
         ])
         return js
     
-class ExtensionText(extension.Extension):
+class ExtensionText(element.Element):
     """ Race text US core """
     resource_type = "ExtensionText"
     
@@ -85,7 +88,7 @@ class ExtensionText(extension.Extension):
         ])
         return js
 
-class USCoreRace(extension.Extension):
+class USCoreRace(element.Element):
     """ Race as defined by US Core """
     resource_type = "USCoreRace"
     
@@ -121,7 +124,7 @@ class USCoreRace(extension.Extension):
         return js
     
 
-class USCoreEthnicity(extension.Extension):
+class USCoreEthnicity(element.Element):
     """ Ethnicity as defined by US Core """
     resource_type = "USCoreEthnicity"
     
@@ -157,7 +160,7 @@ class USCoreEthnicity(extension.Extension):
         return js
     
     
-class USCoreBirthSex(extension.Extension):
+class USCoreBirthSex(element.Element):
     """ Brithsex as defined by US Core """
     resource_type = "USCoreBirthSex"
     
@@ -168,17 +171,29 @@ class USCoreBirthSex(extension.Extension):
         :param dict jsondict: A JSON dictionary to use for initialization
         :param bool strict: If True (the default), invalid variables will raise a TypeError
         """
+        
+        
         self.url = None
         """ Birthsex url for us-core-birthsex """
         
         self.valueCode = None
-        """ Birthsex """
-        
+        """ Birthsex F or M"""    
         
         super(USCoreBirthSex, self).__init__(jsondict=jsondict, strict=strict)
+      
+    def __setattr__(self, name, value):        
+        if (name == 'valueCode') & (hasattr(self,'valueCode')):            
+            # check to make sure that the value is coming out M or F
+            if value not in ['F', 'M']:
+                logger.error(f'ERROR: Birthsex not one of F or M, instead given: {value}')
+                # raise ValueError(f'Birthsex not one of F or M, instead given: {value}')
+        object.__setattr__(self, name, value)
+        
+        
 
     def elementProperties(self):
         js = super(USCoreBirthSex, self).elementProperties()
+        
         js.extend([
             ("url", "url", str, False, None, True),
             ("valueCode", "valueCode", str, False, None, True)
