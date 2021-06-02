@@ -1,5 +1,6 @@
 
 from . import element
+from . import valid
 import logging
 
 logger = logging.getLogger(__name__)
@@ -181,15 +182,15 @@ class USCoreBirthSex(element.Element):
         
         super(USCoreBirthSex, self).__init__(jsondict=jsondict, strict=strict)
       
-    def __setattr__(self, name, value):        
-        if (name == 'valueCode') & (hasattr(self,'valueCode')):            
-            # check to make sure that the value is coming out M or F
-            if value not in ['F', 'M']:
-                logger.error(f'ERROR: Birthsex not one of F or M, instead given: {value}')
-                # raise ValueError(f'Birthsex not one of F or M, instead given: {value}')
+    def __setattr__(self, name, value): 
+        if hasattr(self,name):  
+            if name == 'valueCode': self.validationCheck(name, value, valid.BIRTHSEX)          
         object.__setattr__(self, name, value)
         
-        
+    def validationCheck(self, name, value, value_list):
+        if (not len(value_list)==0) & (value not in value_list):
+            logger.error(f'ERROR: {name} not of proper type {value_list}, instead given: {value}')
+            # raise ValueError(f'Birthsex not one of F or M, instead given: {value}')
 
     def elementProperties(self):
         js = super(USCoreBirthSex, self).elementProperties()

@@ -3,9 +3,11 @@
 #
 #  Generated from FHIR 4.0.0-a53ec6ee1b (http://hl7.org/fhir/StructureDefinition/Patient) on 2019-05-07.
 #  2019, SMART Health IT.
-
-
 from . import domainresource
+from . import valid
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Patient(domainresource.DomainResource):
     """ Information about an individual or animal receiving health care services.
@@ -135,6 +137,15 @@ class Patient(domainresource.DomainResource):
              uscorepatient.USCoreBirthSex, False, None, False)
         ])
         return js
+    
+    def __setattr__(self, name, value): 
+        if hasattr(self,name):  
+            if name == 'gender': self.validationCheck(name, value, valid.GENDER)              
+        object.__setattr__(self, name, value)
+        
+    def validationCheck(self, name, value, value_list):
+        if (not len(value_list)==0) & (value not in value_list):
+            logger.error(f'ERROR: {name} not of proper type {value_list}, instead given: {value}')
 
 
 from . import backboneelement
@@ -233,6 +244,15 @@ class PatientContact(backboneelement.BackboneElement):
             ("telecom", "telecom", contactpoint.ContactPoint, True, None, False),
         ])
         return js
+
+    def __setattr__(self, name, value): 
+        if hasattr(self,name):  
+            if name == 'gender': self.validationCheck(name, value, valid.GENDER)              
+        object.__setattr__(self, name, value)
+        
+    def validationCheck(self, name, value, value_list):
+        if (not len(value_list)==0) & (value not in value_list):
+            logger.error(f'ERROR: {name} not of proper type {value_list}, instead given: {value}')
 
 
 class PatientLink(backboneelement.BackboneElement):
