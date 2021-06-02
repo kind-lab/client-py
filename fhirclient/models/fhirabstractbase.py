@@ -164,33 +164,28 @@ class FHIRAbstractBase(object):
         valid = set(['resourceType'])   # used to also contain `fhir_comments` until STU-3
         found = set()
         nonoptionals = set()
-        for name, jsname, typ, is_list, of_many, not_optional in self.elementProperties():  
-            if jsname == 'ombCategory':
-                print('--------------------')
-                print('OMB OMB OMB OMB')
-                print('--------------------')
-                                  
+        for name, jsname, typ, is_list, of_many, not_optional in self.elementProperties():                                   
             if ('extension' in jsname) & (len(jsname) > len('extension')):
                 jsname, url = jsname.split('_')
                 value = jsondict.get(jsname)
                 for ext in value:   
                     if ext['url'] == url:
-                        value = ext['extension']
+                        value = ext
                 # reorganize json, extensions are not formatted well
-                new_dict = {'url': url}
-                for v in value:
-                    url2 = v['url']
-                    if url2 in new_dict.keys():
-                        if isinstance(new_dict[url2], list):
-                            new_dict[url2].append(v)
+                if 'extension' in value.keys():
+                    value = value['extension']
+                    new_dict = {'url': url}
+                    for v in value:
+                        url2 = v['url']
+                        if url2 in new_dict.keys():
+                            if isinstance(new_dict[url2], list):
+                                new_dict[url2].append(v)
+                            else:
+                                new_dict[url2] = [new_dict[url2]]
+                                new_dict[url2].append(v)
                         else:
-                            new_dict[url2] = [new_dict[url2]]
-                            new_dict[url2].append(v)
-                    else:
-                        new_dict[url2] = v
-                value = new_dict
-                print('===============================')
-                print(value)
+                            new_dict[url2] = v
+                    value = new_dict                
             else:
                 value = jsondict.get(jsname) 
             

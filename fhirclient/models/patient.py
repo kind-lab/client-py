@@ -124,7 +124,9 @@ class Patient(domainresource.DomainResource):
             ("name", "name", humanname.HumanName, True, None, True),
             ("photo", "photo", attachment.Attachment, True, None, False),
             ("telecom", "telecom", contactpoint.ContactPoint, True, None, False),
-            ("usCoreRace", 'extension_http://hl7.org/fhir/us/core/StructureDefinition/us-core-race',USCoreRace, False, None, False)
+            ("usCoreRace", 'extension_http://hl7.org/fhir/us/core/StructureDefinition/us-core-race',USCoreRace, False, None, False),
+            ("usCoreEthnicity", 'extension_http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity',USCoreEthnicity, False, None, False),
+            ("usCoreBirthSex", 'extension_http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex',USCoreBirthSex, False, None, False)
         ])
         return js
 
@@ -376,9 +378,75 @@ class USCoreRace(extension.Extension):
     def elementProperties(self):
         js = super(USCoreRace, self).elementProperties()
         js.extend([
+            ("url", "url", str, False, None, True),
             ("ombCategory", "ombCategory", ExtensionOmbCategory, True, None, False),
             ("detailed", "detailed", ExtensionDetailed, True, None, False),
             ("text", "text", ExtensionText, False, None, True),
+        ])
+        return js
+    
+
+class USCoreEthnicity(extension.Extension):
+    """ Ethnicity as defined by US Core """
+    resource_type = "USCoreEthnicity"
+    
+    def __init__(self, jsondict=None, strict=True):
+        """ Initialize all valid properties.
+        
+        :raises: FHIRValidationError on validation errors, unless strict is False
+        :param dict jsondict: A JSON dictionary to use for initialization
+        :param bool strict: If True (the default), invalid variables will raise a TypeError
+        """
+        self.url = None
+        """ Ethnicity url for us-core-ethnicity """
+        
+        self.ombCategory = None
+        """ OMB Category for ethnicity"""
+        
+        self.detailed = None
+        """ Detailed description of race """
+        
+        self.text = None
+        """ Text description of race """
+        
+        super(USCoreEthnicity, self).__init__(jsondict=jsondict, strict=strict)
+
+    def elementProperties(self):
+        js = super(USCoreEthnicity, self).elementProperties()
+        js.extend([
+            ("url", "url", str, False, None, True),
+            ("ombCategory", "ombCategory", ExtensionOmbCategory, False, None, False),
+            ("detailed", "detailed", ExtensionDetailed, True, None, False),
+            ("text", "text", ExtensionText, False, None, True),
+        ])
+        return js
+    
+    
+class USCoreBirthSex(extension.Extension):
+    """ Brithsex as defined by US Core """
+    resource_type = "USCoreBirthSex"
+    
+    def __init__(self, jsondict=None, strict=True):
+        """ Initialize all valid properties.
+        
+        :raises: FHIRValidationError on validation errors, unless strict is False
+        :param dict jsondict: A JSON dictionary to use for initialization
+        :param bool strict: If True (the default), invalid variables will raise a TypeError
+        """
+        self.url = None
+        """ Birthsex url for us-core-birthsex """
+        
+        self.valueCode = None
+        """ Birthsex """
+        
+        
+        super(USCoreBirthSex, self).__init__(jsondict=jsondict, strict=strict)
+
+    def elementProperties(self):
+        js = super(USCoreBirthSex, self).elementProperties()
+        js.extend([
+            ("url", "url", str, False, None, True),
+            ("valueCode", "valueCode", str, False, None, True)
         ])
         return js
         
