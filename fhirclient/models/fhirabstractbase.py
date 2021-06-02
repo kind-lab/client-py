@@ -136,14 +136,36 @@ class FHIRAbstractBase(object):
         
         return instance
     
-    
-    # MARK: (De)Serialization
+    def extension_json(self, jsondict, jsname):
+        """ Reorganizing json data for extensions """
+        jsname, url = jsname.split('_')
+        value = jsondict.get(jsname)
+        for ext in value:   
+            if ext['url'] == url:
+                value = ext
+        # reorganize json, extensions are not formatted well
+        if 'extension' in value.keys():
+            value = value['extension']
+            new_dict = {'url': url}
+            for v in value:
+                url2 = v['url']
+                if url2 in new_dict.keys():
+                    if isinstance(new_dict[url2], list):
+                        new_dict[url2].append(v)
+                    else:
+                        new_dict[url2] = [new_dict[url2]]
+                        new_dict[url2].append(v)
+                else:
+                    new_dict[url2] = v
+            value = new_dict     
+        return value
     
     def elementProperties(self):
         """ Returns a list of tuples, one tuple for each property that should
         be serialized, as: ("name", "json_name", type, is_list, "of_many", not_optional)
         """
         return []
+
     
     def update_with_json(self, jsondict):
         """ Update the receiver with data in a JSON dictionary.
@@ -166,26 +188,7 @@ class FHIRAbstractBase(object):
         nonoptionals = set()
         for name, jsname, typ, is_list, of_many, not_optional in self.elementProperties():                                   
             if ('extension' in jsname) & (len(jsname) > len('extension')):
-                jsname, url = jsname.split('_')
-                value = jsondict.get(jsname)
-                for ext in value:   
-                    if ext['url'] == url:
-                        value = ext
-                # reorganize json, extensions are not formatted well
-                if 'extension' in value.keys():
-                    value = value['extension']
-                    new_dict = {'url': url}
-                    for v in value:
-                        url2 = v['url']
-                        if url2 in new_dict.keys():
-                            if isinstance(new_dict[url2], list):
-                                new_dict[url2].append(v)
-                            else:
-                                new_dict[url2] = [new_dict[url2]]
-                                new_dict[url2].append(v)
-                        else:
-                            new_dict[url2] = v
-                    value = new_dict                
+                value = self.extension_json(jsondict, jsname)                
             else:
                 value = jsondict.get(jsname) 
             
