@@ -164,6 +164,122 @@ class FHIRAbstractBase(object):
         valid = set(['resourceType'])   # used to also contain `fhir_comments` until STU-3
         found = set()
         nonoptionals = set()
+        for name, jsname, typ, is_list, of_many, not_optional in self.elementProperties():  
+            if jsname == 'ombCategory':
+                print('--------------------')
+                print('OMB OMB OMB OMB')
+                print('--------------------')
+                                  
+            if ('extension' in jsname) & (len(jsname) > len('extension')):
+                jsname, url = jsname.split('_')
+                value = jsondict.get(jsname)
+                for ext in value:   
+                    if ext['url'] == url:
+                        value = ext['extension']
+                # reorganize json, extensions are not formatted well
+                new_dict = {'url': url}
+                for v in value:
+                    url2 = v['url']
+                    if url2 in new_dict.keys():
+                        if isinstance(new_dict[url2], list):
+                            new_dict[url2].append(v)
+                        else:
+                            new_dict[url2] = [new_dict[url2]]
+                            new_dict[url2].append(v)
+                    else:
+                        new_dict[url2] = v
+                value = new_dict
+                print('===============================')
+                print(value)
+            else:
+                value = jsondict.get(jsname) 
+            
+            
+            valid.add(jsname)
+            if of_many is not None:
+                valid.add(of_many)
+            
+            # bring the value in shape
+            err = None
+            # value = jsondict.get(jsname)
+            if value is not None and hasattr(typ, 'with_json_and_owner'):
+                try:
+                    value = typ.with_json_and_owner(value, self)
+                except Exception as e:
+                    value = None
+                    err = e
+            
+            # got a value, test if it is of required type and assign
+            if value is not None:
+                testval = value
+                if is_list:
+                    if not isinstance(value, list):
+                        err = TypeError("Wrong type {} for list property \"{}\" on {}, expecting a list of {}"
+                            .format(type(value), name, type(self), typ))
+                        testval = None
+                    else:
+                        testval = value[0] if value and len(value) > 0 else None
+                
+                if testval is not None and not self._matches_type(testval, typ):
+                    err = TypeError("Wrong type {} for property \"{}\" on {}, expecting {}"
+                        .format(type(testval), name, type(self), typ))
+                else:
+                    setattr(self, name, value)
+                
+                found.add(jsname)
+                if of_many is not None:
+                    found.add(of_many)
+            
+            # not optional and missing, report (we clean `of_many` later on)
+            elif not_optional:
+                nonoptionals.add(of_many or jsname)
+            
+            # TODO: look at `_name` only if this is a primitive!
+            _jsname = '_'+jsname
+            _value = jsondict.get(_jsname)
+            if _value is not None:
+                valid.add(_jsname)
+                found.add(_jsname)
+            
+            # report errors
+            if err is not None:
+                errs.append(err.prefixed(name) if isinstance(err, FHIRValidationError) else FHIRValidationError([err], name))
+        
+        # were there missing non-optional entries?
+        if len(nonoptionals) > 0:
+            for miss in nonoptionals - found:
+                errs.append(KeyError("Non-optional property \"{}\" on {} is missing"
+                    .format(miss, self)))
+        
+        # were there superfluous dictionary keys?
+        if len(set(jsondict.keys()) - valid) > 0:
+            for supflu in set(jsondict.keys()) - valid:
+                errs.append(AttributeError("Superfluous entry \"{}\" in data for {}"
+                    .format(supflu, self)))
+        
+        if len(errs) > 0:
+            raise FHIRValidationError(errs)
+    
+    
+    def update_with_json_orig(self, jsondict):
+        """ Update the receiver with data in a JSON dictionary.
+        
+        :raises: FHIRValidationError on validation errors
+        :param dict jsondict: The JSON dictionary to use to update the receiver
+        :returns: None on success, a list of errors if there were errors
+        """
+        if jsondict is None:
+            return
+        
+        if not isinstance(jsondict, dict):
+            raise FHIRValidationError("Non-dict type {} fed to `update_with_json` on {}"
+                .format(type(jsondict), type(self)))
+        
+        # loop all registered properties and instantiate
+        errs = []
+        valid = set(['resourceType'])   # used to also contain `fhir_comments` until STU-3
+        found = set()
+        nonoptionals = set()
         for name, jsname, typ, is_list, of_many, not_optional in self.elementProperties():
             valid.add(jsname)
             if of_many is not None:

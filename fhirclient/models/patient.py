@@ -98,6 +98,9 @@ class Patient(domainresource.DomainResource):
         """ A contact detail for the individual.
         List of `ContactPoint` items (represented as `dict` in JSON). """
         
+        self.usCoreRace = None
+        """ US-core race extension """
+        
         super(Patient, self).__init__(jsondict=jsondict, strict=strict)
     
     def elementProperties(self):
@@ -121,6 +124,7 @@ class Patient(domainresource.DomainResource):
             ("name", "name", humanname.HumanName, True, None, True),
             ("photo", "photo", attachment.Attachment, True, None, False),
             ("telecom", "telecom", contactpoint.ContactPoint, True, None, False),
+            ("usCoreRace", 'extension_http://hl7.org/fhir/us/core/StructureDefinition/us-core-race',USCoreRace, False, None, False)
         ])
         return js
 
@@ -260,9 +264,9 @@ class PatientLink(backboneelement.BackboneElement):
         return js
     
    
-class USCoreRaceExtension(extension.Extension):
+class ExtensionOmbCategory(extension.Extension):
     """ Race text US core """
-    resource_type = "USCoreRaceExtension"
+    resource_type = "ExtensionOmbCategory"
     
     def __init__(self, jsondict=None, strict=True):
         """ Initialize all valid properties.
@@ -277,17 +281,72 @@ class USCoreRaceExtension(extension.Extension):
         self.valueCoding = None
         """ Value of omb category """
         
-        self.DOESNTEXISTVALUE = None
+        super(ExtensionOmbCategory, self).__init__(jsondict=jsondict, strict=strict)
+        
         
     def elementProperties(self):
-        js = super(USCoreRaceExtension, self).elementProperties()
+        js = super(ExtensionOmbCategory, self).elementProperties()
         js.extend([
             ("url", "url", str, False, None, True),
             ("valueCoding", "valueCoding", coding.Coding, False, None, True),
-            ("DOESNTEXISTVALUE", "DOESNTEXISTVALUE", str, False, None, True),
         ])
         return js
 
+class ExtensionDetailed(extension.Extension):
+    """ Race text US core """
+    resource_type = "ExtensionDetailed"
+    
+    def __init__(self, jsondict=None, strict=True):
+        """ Initialize all valid properties.
+        
+        :raises: FHIRValidationError on validation errors, unless strict is False
+        :param dict jsondict: A JSON dictionary to use for initialization
+        :param bool strict: If True (the default), invalid variables will raise a TypeError
+        """
+        self.url = None
+        """ OMB cateogry"""
+        
+        self.valueCoding = None
+        """ Value of omb category """
+        
+        super(ExtensionDetailed, self).__init__(jsondict=jsondict, strict=strict)
+        
+        
+    def elementProperties(self):
+        js = super(ExtensionDetailed, self).elementProperties()
+        js.extend([
+            ("url", "url", str, False, None, True),
+            ("valueCoding", "valueCoding", coding.Coding, False, None, True),
+        ])
+        return js
+    
+class ExtensionText(extension.Extension):
+    """ Race text US core """
+    resource_type = "ExtensionText"
+    
+    def __init__(self, jsondict=None, strict=True):
+        """ Initialize all valid properties.
+        
+        :raises: FHIRValidationError on validation errors, unless strict is False
+        :param dict jsondict: A JSON dictionary to use for initialization
+        :param bool strict: If True (the default), invalid variables will raise a TypeError
+        """
+        self.url = None
+        """ OMB cateogry"""
+        
+        self.valueString = None
+        """ Value of omb category """
+        
+        super(ExtensionText, self).__init__(jsondict=jsondict, strict=strict)
+        
+        
+    def elementProperties(self):
+        js = super(ExtensionText, self).elementProperties()
+        js.extend([
+            ("url", "url", str, False, None, True),
+            ("valueString", "valueString", str, False, None, True),
+        ])
+        return js
 
 class USCoreRace(extension.Extension):
     """ Race as defined by US Core """
@@ -300,13 +359,26 @@ class USCoreRace(extension.Extension):
         :param dict jsondict: A JSON dictionary to use for initialization
         :param bool strict: If True (the default), invalid variables will raise a TypeError
         """
-        self.extension = None
-        """ Race extension """
+        self.url = None
+        """ Race url for us-core-race """
+        
+        self.ombCategory = None
+        """ OMB Category for race"""
+        
+        self.detailed = None
+        """ Detailed description of race """
+        
+        self.text = None
+        """ Text description of race """
+        
+        super(USCoreRace, self).__init__(jsondict=jsondict, strict=strict)
 
     def elementProperties(self):
         js = super(USCoreRace, self).elementProperties()
         js.extend([
-            ("extension", "extension", USCoreRaceExtension, False, None, True),
+            ("ombCategory", "ombCategory", ExtensionOmbCategory, True, None, False),
+            ("detailed", "detailed", ExtensionDetailed, True, None, False),
+            ("text", "text", ExtensionText, False, None, True),
         ])
         return js
         
